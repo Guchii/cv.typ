@@ -13,14 +13,14 @@ jobs:
       - name: Typst
         uses: lvignoli/typst-action@main
         with:
-          source_file: cv.typ
-      
+          source_file: shivom.typ
+
       - name: Upload PDF file
         uses: actions/upload-artifact@v3
         with:
           name: PDF
-          path: ./*.pdf
-  
+          path: ./shivom.pdf
+
       - name: Get current date
         id: date
         run: echo "DATE=$(date +%Y-%m-%d-%H:%M)" >> $GITHUB_ENV
@@ -30,4 +30,4 @@ jobs:
         if: github.ref_type == 'tag'
         with:
           name: "${{ github.ref_name }} — ${{ env.DATE }}"
-          files: cv.pdf
+          files: shivom.pdf

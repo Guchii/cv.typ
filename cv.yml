@@ -7,8 +7,8 @@ personal:
   url: null
   location:
     city: New Delhi
-    region: ""
-    postalCode: "110084"
+    region: null
+    postalCode: null
     country: India
   profiles:
     - network: LinkedIn
@@ -27,7 +27,7 @@ work:
   - organization: Profilr
     position: Frontend Lead
     url: https://profilr.in
-    location: Remote / New Delhi
+    location: Remote / Delhi
     startDate: 2023-01-01
     currentlyWorking: true
     endDate: 2023-06-05
@@ -44,7 +44,7 @@ work:
     endDate: 2022-10-31
     highlights:
       - Collaborated on cross-domain projects, fostering teamwork in entertainment and e-commerce.
-      - Led the adoption of FastAPI for a scalable service-based architecture.
+      - Championed the use of FastAPI to create a flexible and scalable service-oriented architecture.
       - Seamlessly integrated Paytm and Razorpay for enhanced payment processing.
 
 education:
@@ -66,7 +66,7 @@ education:
     cgpa: 8.2
     area: Science
     studyType: Senior Secondary
-    startDate: 2017-08-01
+    startDate: 2005-08-01
     endDate: 2020-06-30
     location: New Delhi
     honors: []
@@ -80,43 +80,52 @@ certificates: []
 publications: []
 
 projects:
-  - name: "Job Tailor"
-    url: https://example.com/
-    affiliation: Open University
+  - name: "W3B"
+    url: https://github.com/guchii/w3b
+    affiliation: ""
     startDate: 2020-11-01
     endDate: 2021-04-30
     highlights:
-      - Created an AI-powered resume editor application that allowed users to easily create different resumes and cover letters specifically tailored to and customized for individual job descriptions based on their personal information in their complete curriculum vitae.
-      - Acquired more than 100,000 user sign ups in 3 months and more than 10,000 active monthly users in its lifetime before being sold to investors.
-      - Generated profit of upwards \$20,000 yearly with a team of only four developers and three business operatives
+      - A React library with a range of essential hooks for efficient dapp development.
+      - Enabled seamless integration of Ethereum Provider API within React applications, optimizing blockchain development.
+      - Published and contributed to the developer community by sharing the library on NPM, gaining recognition in web3 development circles.
 
+  - name: Krishi Block
+    url: https://github.com/guchii/w3b
+    affiliation: ""
+    startDate: 2020-11-01
+    endDate: 2021-04-30
+    highlights:
+      - A dapp for land registry and ownership transfer, successfully deployed on the Polygon testnet.
+      - It's a user-friendly and robust blockchain application.
+
+  - name: "Plug Talk"
+    url: https://github.com/guchii/plugtalk
+    affiliation: ""
+    startDate: 2020-11-01
+    endDate: 2021-04-30
+    highlights:
+      - A community chat application similar to Discord.
+      - Integrated Google authentication using Firebase for streamlined user access.
+      - Empowered users to establish or join servers, each supporting multiple channels for interactive discussions.
+
+  - name: "Dump Code Here"
+    url: https://github.com/guchii/dumpcodehere"
+    affiliation: ""
+    startDate: 2020-11-01
+    endDate: 2021-04-30
+    highlights:
+      - A Pastebin clone made with React, Next.js and MongoDB.
 skills:
-  - category: Soft Skills
-    skills:
-      - Public Speaking
-      - Debating
-      - Communication
-      - Critical Thinking
-      - Leadership
-      - Persuasive Writing
-      - Technical Writing
   - category: Programming
     skills:
       - Python
-      - SQL, PostgreSQL
-      - MATLAB/Octave
+      - Typescript/Javascript
       - HTML
       - CSS
-      - Javascript
+      - SQL
       - Typst
       - LaTeX
-  - category: Tools
-    skills:
-      - Microsoft Word
-      - Git
-      - Docker
-      - Visual Studio Code
-      - Canva
   - category: Web Development
     skills:
       - React
@@ -128,6 +137,14 @@ skills:
       - Deno
       - FastAPI
       - Flask
+  - category: Tools
+    skills:
+      - Git
+      - GitHub Actions
+      - Linux
+      - Docker
+      - Visual Studio Code
+      - Vim
 
 languages:
   - language: English

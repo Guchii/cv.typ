@@ -73,7 +73,7 @@
 #let addresstext(info, uservars) = {
     if uservars.showAddress {
         block(width: 100%)[
-            #info.personal.location.city, #{if info.personal.location.region != "" [#info.personal.location.region, ]}#info.personal.location.country #info.personal.location.postalCode
+            #info.personal.location.city, #{if info.personal.location.region != none [#info.personal.location.region, ]}#info.personal.location.country #info.personal.location.postalCode
             #v(-4pt)
         ]
     } else {none}
@@ -226,10 +226,7 @@
 
             // Create a block layout for each education entry
             block(width: 100%)[
-                // Line 1: Institution and Location
                 *#link(project.url)[#project.name]* \
-                // Line 2: Degree and Date Range
-                #text(style: "italic")[#project.affiliation]  #h(1fr) #utils.monthname(start.month()) #start.year() #sym.dash.en #utils.monthname(end.month()) #end.year() \
                 // Summary or Description
                 #for hi in project.highlights [
                     - #eval("[" + hi + "]")
@@ -310,17 +307,17 @@
     if (info.languages != none) or (info.skills != none) or (info.interests != none) [
         == Skills, Languages, Interests
 
+        #if (info.skills != none) [
+            #for group in info.skills [
+                - *#group.category*: #group.skills.join(", ")
+            ]
+        ]
         #if (info.languages != none) [
             #let langs = ()
             #for lang in info.languages {
                 langs.push([#lang.language (#lang.fluency)])
             }
             - *Languages*: #langs.join(", ")
-        ]
-        #if (info.skills != none) [
-            #for group in info.skills [
-                - *#group.category*: #group.skills.join(", ")
-            ]
         ]
         #if (info.interests != none) [
             - *Interests*: #info.interests.join(", ")
