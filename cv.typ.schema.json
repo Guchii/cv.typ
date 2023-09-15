@@ -19,7 +19,7 @@
           "type": "string"
         },
         "url": {
-          "type": "string",
+          "type": ["string", "null"],
           "format": "uri"
         },
         "location": {
@@ -29,10 +29,10 @@
               "type": "string"
             },
             "region": {
-              "type": "string"
+              "type": ["string", "null"]
             },
             "postalCode": {
-              "type": "string"
+              "type": ["string", "null"]
             },
             "country": {
               "type": "string"
@@ -121,8 +121,8 @@
             "type": "number"
           },
           "url": {
-            "type": "string",
-            "format": "uri"
+            "format": "uri",
+            "type": ["null", "string"]
           },
           "area": {
             "type": "string"
