@@ -1,7 +1,7 @@
 #import "utils.typ"
 
 // Load CV Data from YAML
-//#let info = yaml("cv.typ.yml")
+#let info = yaml("cv.yml")
 
 // Variables
 //#let headingfont = "Linux Libertine" // Set font for headings
@@ -73,7 +73,7 @@
 #let addresstext(info, uservars) = {
     if uservars.showAddress {
         block(width: 100%)[
-            #info.personal.location.city, #info.personal.location.region, #info.personal.location.country #info.personal.location.postalCode
+            #info.personal.location.city, #{if info.personal.location.region != "" [#info.personal.location.region, ]}#info.personal.location.country #info.personal.location.postalCode
             #v(-4pt)
         ]
     } else {none}
@@ -86,7 +86,7 @@
     #let profiles = (
         box(link("mailto:" + info.personal.email)),
         if uservars.showNumber {box(link("tel:" + info.personal.phone))} else {none},
-        box(link(info.personal.url)[#info.personal.url.split("//").at(1)]),
+        if info.personal.url != none {box(link(info.personal.url)[#info.personal.url.split("//").at(1)])} else {none},
     )
 
     // Remove any none elements from the list
@@ -98,15 +98,15 @@
     #if info.personal.profiles.len() > 0 {
         for profile in info.personal.profiles {
             profiles.push(
-                box(link(profile.url)[#profile.url.split("//").at(1)])
+                box(link(profile.url)[#profile.network])
             )
         }
     }
 
     // #set par(justify: false)
     #set text(font: uservars.bodyfont, weight: "medium", size: uservars.fontsize * 1)
-    #pad(x: 0em)[
-        #profiles.join([#sym.space.en #sym.diamond.filled #sym.space.en])
+    #pad(x: 0em, y: 0em)[
+        #profiles.rev().join([#sym.space.en #sym.diamond.filled #sym.space.en])
     ]
 ]
 
@@ -133,13 +133,17 @@
             // Create a block layout for each education entry
             block(width: 100%)[
                 // Line 1: Institution and Location
-                *#link(edu.url)[#edu.institution]* #h(1fr) *#edu.location* \
+                *#link(edu.url)[#edu.institution]* CGPA: *#edu.cgpa* #h(1fr) *#edu.location* \
                 // Line 2: Degree and Date Range
                 #text(style: "italic")[#edu.studyType in #edu.area] #h(1fr)
-                #utils.monthname(start.month()) #start.year() #sym.dash.en #utils.monthname(end.month()) #end.year() \
-                // Bullet points
-                - *Honors*: #edu.honors.join(", ")
-                - *Courses*: #edu.courses.join(", ")
+                #utils.monthname(start.month()) #start.year() #sym.dash.en #{
+                    let present = edu.keys().contains("currentlyStudying")
+                    if present {
+                        [Present (#end.year())]
+                    } else {
+                        [#utils.monthname(end.month()) #end.year()]
+                    }
+                }
                 // Highlights or Description
                 #for hi in edu.highlights [
                     - #eval("[" + hi + "]")
@@ -165,7 +169,14 @@
                 *#link(w.url)[#w.organization]* #h(1fr) *#w.location* \
                 // Line 2: Degree and Date Range
                 #text(style: "italic")[#w.position] #h(1fr)
-                #utils.monthname(start.month()) #start.year() #sym.dash.en #utils.monthname(end.month()) #end.year() \
+                #utils.monthname(start.month()) #start.year() #sym.dash.en #{
+                    let present = w.keys().contains("currentlyWorking")
+                    if present {
+                        [Present]
+                    } else {
+                        [#utils.monthname(end.month()) #end.year()]
+                    }
+                }
                 // Highlights or Description
                 #for hi in w.highlights [
                     - #eval("[" + hi + "]")

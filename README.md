@@ -12,11 +12,11 @@ This is based on the [popular template on Reddit](https://web.archive.org/https:
 
 ## Demo
 
-See [**example CV**](example.pdf) and [@jskherman's CV](https://go.jskherman.com/cv):
+See [**example CV**](example.pdf) and [@guchii's CV](https://go.guchii.com/cv):
 
 <div align="center">
-  <img src="https://github.com/jskherman/cv.typ/assets/68434444/12cff1a4-76d7-4ce0-97f1-16cd26d61c25" alt="Sample CV Page 1" style="float: left; width: 49%; height: auto;">
-  <img src="https://github.com/jskherman/cv.typ/assets/68434444/52bc078b-35f3-46ba-9561-2d2b4d0f8eb0" alt="Sample CV Page 2" style="float: left; width: 49%; height: auto;">
+  <img src="https://github.com/guchii/cv.typ/assets/68434444/12cff1a4-76d7-4ce0-97f1-16cd26d61c25" alt="Sample CV Page 1" style="float: left; width: 49%; height: auto;">
+  <img src="https://github.com/guchii/cv.typ/assets/68434444/52bc078b-35f3-46ba-9561-2d2b4d0f8eb0" alt="Sample CV Page 2" style="float: left; width: 49%; height: auto;">
 </div>
 
 ## Usage
@@ -35,20 +35,23 @@ pulled easily.
 
 ```
 <your-cv-repo>/
-├── cv.typ/ // git submodule 
+├── cv.typ/ // git submodule
 |   └── cv.typ
 ├── <your-cv-content>.typ // #import "cv.typ/cv.typ": *
 └── <your-cv-data>.yml
 ```
 
-1. Add [jskherman/cv.typ](https://github.com/jskherman/cv.typ) as git submodule.
-into your CV's repo.
+1. Add [guchii/cv.typ](https://github.com/guchii/cv.typ) as git submodule.
+   into your CV's repo.
+
 ```
-git submodule add https://github.com/jskherman/cv.typ
+git submodule add https://github.com/guchii/cv.typ
 ```
+
 2. Copy and rename `example.typ` and `example.yml` to your CV's repo root directory. Use these files
    as template/starting point for your CV.
 3. Run the following to command to automatically recompile your CV file on changes.
+
 ```bash
 typst watch <your-cv-content>.typ
 ```
