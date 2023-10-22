@@ -1,0 +1,165 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/guchii/cv.typ/main/cv.typ.schema.json
+
+personal:
+  name: Shivom Srivastava
+  email: shvomsrivastava@gmail.com
+  phone: +91 7799052544
+  url: null
+  location:
+    city: New Delhi
+    region: null
+    postalCode: null
+    country: India
+  profiles:
+    - network: LinkedIn
+      username: Shivom Srivastava
+      url: https://linkedin.com/in/shivom-srivastava
+    - network: LeetCode
+      username: Shivom Srivastava
+      url: https://leetcode.com/guchii
+    - network: GitHub
+      username: Guchii
+      url: https://github.com/guchii
+
+awards: []
+
+work:
+  - organization: Profilr
+    position: Frontend Lead
+    url: https://profilr.in
+    location: Remote / Delhi
+    startDate: 2023-01-01
+    currentlyWorking: true
+    endDate: 2023-06-05
+    highlights:
+      - Developed an intuitive assessment platform using Next.js and Tailwind CSS while ensuring superior website performance.
+      - Constructed an efficient coding assessment tool, akin to LeetCode, streamlining coding skills evaluation.
+      - Collaborated cross-functionally to optimize platform performance and implement contemporary web design standards for a polished user experience.
+
+  - organization: The One World
+    position: Backend Developer
+    url: https://theoneworld.in
+    location: Remote / Kerela
+    startDate: 2022-06-01
+    endDate: 2022-10-31
+    highlights:
+      - Collaborated on cross-domain projects, fostering teamwork in entertainment and e-commerce.
+      - Championed the use of FastAPI to create a flexible and scalable service-oriented architecture.
+      - Seamlessly integrated Paytm and Razorpay for enhanced payment processing.
+
+education:
+  - institution: Bennett University
+    url: https://bennett.edu.in/
+    area: Computer Science
+    studyType: Bachelor of Technology
+    startDate: 2020-08-01
+    endDate: 2024-06-30
+    location: Greater Noida
+    currentlyStudying: true
+    cgpa: 7.65
+    highlights: []
+    honors: []
+    courses: []
+
+  - institution: Darshan Academy
+    url: https://darshanacademy.org/
+    cgpa: 8.2
+    area: Science
+    studyType: Senior Secondary
+    startDate: 2005-08-01
+    endDate: 2020-06-30
+    location: New Delhi
+    honors: []
+    courses: []
+    highlights: []
+
+affiliations: []
+
+certificates: []
+
+publications: []
+
+projects:
+  - name: "W3B"
+    url: https://github.com/guchii/w3b
+    affiliation: ""
+    startDate: 2020-11-01
+    endDate: 2021-04-30
+    highlights:
+      - A React library with a range of essential hooks for efficient dapp development.
+      - Enabled seamless integration of Ethereum Provider API within React applications, optimizing blockchain development.
+      - Published and contributed to the developer community by sharing the library on NPM, gaining recognition in web3 development circles.
+
+  - name: Krishi Block
+    url: https://github.com/guchii/w3b
+    affiliation: ""
+    startDate: 2020-11-01
+    endDate: 2021-04-30
+    highlights:
+      - A dapp for land registry and ownership transfer, successfully deployed on the Polygon testnet.
+      - It's a user-friendly and robust blockchain application.
+
+  - name: "Plug Talk"
+    url: https://github.com/guchii/plugtalk
+    affiliation: ""
+    startDate: 2020-11-01
+    endDate: 2021-04-30
+    highlights:
+      - A community chat application similar to Discord.
+      - Integrated Google authentication using Firebase for streamlined user access.
+      - Empowered users to establish or join servers, each supporting multiple channels for interactive discussions.
+
+  - name: "Dump Code Here"
+    url: https://github.com/guchii/dumpcodehere"
+    affiliation: ""
+    startDate: 2020-11-01
+    endDate: 2021-04-30
+    highlights:
+      - A Pastebin clone made with React, Next.js and MongoDB.
+skills:
+  - category: Programming
+    skills:
+      - Python
+      - Typescript/Javascript
+      - HTML
+      - CSS
+      - SQL
+      - Typst
+      - LaTeX
+  - category: Web Development
+    skills:
+      - React
+      - Next.js
+      - million.js
+      - Svelte & Sveltekit
+      - Tailwind CSS
+      - Node.js
+      - Deno
+      - FastAPI
+      - Flask
+  - category: Tools
+    skills:
+      - Git
+      - GitHub Actions
+      - Linux
+      - Docker
+      - Visual Studio Code
+      - Vim
+
+languages:
+  - language: English
+    fluency: Proficient
+  - language: Hindi
+    fluency: Native speaker
+
+interests:
+  - Video Games
+  - Music Production
+
+references:
+  # You can comment out the entries below if you don't have any references
+  # The same goes for the publications
+
+  - name: Dr. Jane Austin
+    reference: John was a great student. He was always eager to learn new things and was very passionate about his studies. As his mentor, I am proud to say that he was also a great leader and was able to lead his team to victory in the 2020 SCG Bangkok Business Challenge Global Competition.
+    url: https://janeaustin.com
