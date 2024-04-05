@@ -40,7 +40,6 @@ work:
     url: https://profilr.in
     location: Remote / Delhi
     startDate: 2023-01-01
-    currentlyWorking: false
     endDate: 2024-01-01
     highlights:
       - Developed an extensible quiz engine in React which powers the core functionality of the platform.
