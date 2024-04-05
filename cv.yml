@@ -3,8 +3,8 @@
 personal:
   name: Shivom Srivastava
   email: shvomsrivastava@gmail.com
-  phone: +91 7799052544
-  url: null
+  phone: +91 8377922600
+  url: https://shivom.store
   location:
     city: New Delhi
     region: null
@@ -16,7 +16,7 @@ personal:
       url: https://linkedin.com/in/shivom-srivastava
     - network: LeetCode
       username: Shivom Srivastava
-      url: https://leetcode.com/guchii
+      url: https:true//leetcode.com/guchii
     - network: GitHub
       username: Guchii
       url: https://github.com/guchii
@@ -24,17 +24,28 @@ personal:
 awards: []
 
 work:
+  - organization: Caw Studios
+    position: Associate SDE
+    url: https://www.cawstudios.com
+    location: Onsite / Hyderabad
+    startDate: 2023-11-15
+    currentlyWorking: true
+    endDate: 2023-06-05
+    highlights:
+      - Contributed to a metadata driven no-code form engine in React for a large-scale project.
+      - Maintaining high code quality and performance standards through active code reviews and testing.
+
   - organization: Profilr
     position: Frontend Lead
     url: https://profilr.in
     location: Remote / Delhi
     startDate: 2023-01-01
-    currentlyWorking: true
-    endDate: 2023-06-05
+    currentlyWorking: false
+    endDate: 2024-01-01
     highlights:
-      - Developed an intuitive assessment platform using Next.js and Tailwind CSS while ensuring superior website performance.
+      - Developed an extensible quiz engine in React which powers the core functionality of the platform.
       - Constructed an efficient coding assessment tool, akin to LeetCode, streamlining coding skills evaluation.
-      - Collaborated cross-functionally to optimize platform performance and implement contemporary web design standards for a polished user experience.
+      - Used tailwind CSS to create a responsive and visually appealing user interface.
 
   - organization: The One World
     position: Backend Developer
@@ -88,7 +99,7 @@ projects:
     highlights:
       - A React library with a range of essential hooks for efficient dapp development.
       - Enabled seamless integration of Ethereum Provider API within React applications, optimizing blockchain development.
-      - Published and contributed to the developer community by sharing the library on NPM, gaining recognition in web3 development circles.
+      - Contributed to the developer community by sharing the library on NPM, gaining recognition in web3 development circles.
 
   - name: Krishi Block
     url: https://github.com/Guchii/krishi-block
@@ -107,7 +118,7 @@ projects:
     highlights:
       - A community chat application similar to Discord.
       - Integrated Google authentication using Firebase for streamlined user access.
-      - Empowered users to establish or join servers, each supporting multiple channels for interactive discussions.
+      - Allows users to establish or join servers, each supporting multiple channels for interactive discussions.
 
   - name: "Dump Code Here"
     url: https://github.com/guchii/dumpcodehere"
@@ -154,7 +165,6 @@ languages:
 
 interests:
   - Video Games
-  - Music Production
 
 references:
   # You can comment out the entries below if you don't have any references
