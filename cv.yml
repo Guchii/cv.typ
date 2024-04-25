@@ -6,7 +6,7 @@ personal:
   phone: +91 8377922600
   url: https://shivom.store
   location:
-    city: New Delhi
+    city: Hyderabad
     region: null
     postalCode: null
     country: India
@@ -14,9 +14,6 @@ personal:
     - network: LinkedIn
       username: Shivom Srivastava
       url: https://linkedin.com/in/shivom-srivastava
-    - network: LeetCode
-      username: Shivom Srivastava
-      url: https:true//leetcode.com/guchii
     - network: GitHub
       username: Guchii
       url: https://github.com/guchii
@@ -66,7 +63,7 @@ education:
     endDate: 2024-06-30
     location: Greater Noida
     currentlyStudying: true
-    cgpa: 7.65
+    cgpa: 8
     highlights: []
     honors: []
     courses: []
