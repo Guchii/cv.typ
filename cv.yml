@@ -22,12 +22,12 @@ awards: []
 
 work:
   - organization: Caw Studios
-    position: Associate SDE
+    position: SDE 1
     url: https://www.cawstudios.com
     location: Onsite / Hyderabad
     startDate: 2023-11-15
     currentlyWorking: true
-    endDate: 2023-06-05
+    endDate: 2025-06-05
     highlights:
       - Contributed to a metadata driven no-code form engine in React for a large-scale project.
       - Maintaining high code quality and performance standards through active code reviews and testing.
