@@ -1,0 +1,160 @@
+name: Tailor Resume, Build & Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      job_description:
+        description: 'Paste the Job Description here'
+        required: true
+        type: string
+      release_title_prefix:
+        description: 'Optional prefix for the release title (e.g., "Application for Acme Corp")'
+        required: false
+        type: string
+        default: 'Tailored Resume'
+      llm_model_name:
+        description: 'OpenRouter model name to use for tailoring'
+        required: false
+        type: string
+        default: 'google/gemini-2.5-pro-exp-03-25:free' # Default to the specified free Gemini model
+
+permissions:
+  contents: write # Needed to create releases
+
+jobs:
+  tailor_build_release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install yq (for YAML validation)
+        run: |
+          sudo wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/bin/yq
+          sudo chmod +x /usr/bin/yq
+        shell: bash
+
+      - name: Read base cv.yml
+        id: base_cv
+        run: echo "content=$(cat cv.yml | sed 's/$/\\n/' | tr -d '\n')" >> $GITHUB_OUTPUT
+        # Reads the file, replaces line endings with \n literal, then removes actual newlines for single-line env var
+
+      - name: Construct LLM Prompt
+        id: prompt
+        run: |
+          # Prepare multi-line strings for JSON embedding
+          read -r -d '' prompt_instructions << EOM
+          You are a resume tailoring assistant. Your goal is to help keep the resume concise, ideally fitting on one page.
+          Analyze the provided resume YAML content and the job description below.
+          Modify the 'highlights' in the 'work' and 'projects' sections to best match the requirements and keywords found in the job description.
+          *   Rewrite highlights to be concise and impactful. Start each highlight with a strong action verb.
+          *   Focus on quantifiable results or specific achievements where possible.
+          *   Keep each highlight point brief, ideally one line.
+          *   Prioritize highlights most relevant to the job description. Remove or shorten less relevant ones if necessary for brevity.
+          You may also subtly reorder skills within categories in the 'skills' section if it emphasizes relevance to the job description.
+          Ensure your output is ONLY the complete, valid YAML content conforming to the original structure. Include ALL original sections and data, even if unmodified.
+          Do not add any commentary, explanations, markdown formatting, or anything outside the pure YAML structure.
+          The entire output must start with '# yaml-language-server: ...' and end with the last line of the YAML data.
+          Base Resume YAML:
+          EOM
+
+          read -r -d '' job_desc_header << EOM
+
+          Job Description:
+          EOM
+
+          # Escape JSON special characters in the YAML content and JD
+          escaped_cv_content=$(echo "${{ steps.base_cv.outputs.content }}" | sed 's/\\/\\\\/g' | sed 's/"/\\"/g' | sed ':a;N;$!ba;s/\n/\\n/g')
+          escaped_jd=$(echo "${{ github.event.inputs.job_description }}" | sed 's/\\/\\\\/g' | sed 's/"/\\"/g' | sed ':a;N;$!ba;s/\n/\\n/g')
+          escaped_instructions=$(echo "$prompt_instructions" | sed 's/\\/\\\\/g' | sed 's/"/\\"/g' | sed ':a;N;$!ba;s/\n/\\n/g')
+          escaped_jd_header=$(echo "$job_desc_header" | sed 's/\\/\\\\/g' | sed 's/"/\\"/g' | sed ':a;N;$!ba;s/\n/\\n/g')
+
+
+          # Combine into a single string for the API call content
+          full_prompt_content="$escaped_instructions\n$escaped_cv_content\n$escaped_jd_header\n$escaped_jd"
+
+          # Construct JSON payload using the model name input
+          echo "json_payload={\"messages\": [{\"role\": \"user\", \"content\": \"$full_prompt_content\"}], \"model\": \"${{ github.event.inputs.llm_model_name }}\"}" >> $GITHUB_OUTPUT
+        shell: bash
+
+      - name: Call OpenRouter LLM API
+        id: llm_call
+        run: |
+          # Recommended headers for OpenRouter
+          repo_url="https://github.com/${{ github.repository }}"
+          project_title="CV Tailoring Workflow"
+
+          response=$(curl -s -X POST "https://openrouter.ai/api/v1/chat/completions" \
+            -H "Authorization: Bearer ${{ secrets.OPENROUTER_API_KEY }}" \
+            -H "Content-Type: application/json" \
+            -H "HTTP-Referer: $repo_url" \
+            -H "X-Title: $project_title" \
+            -d '${{ steps.prompt.outputs.json_payload }}')
+
+          # Check for errors in response (simple check, might need refinement)
+          # OpenRouter errors might be structured differently, check for 'error' object
+          if echo "$response" | yq -e '.error' > /dev/null; then
+            echo "Error received from OpenRouter API:"
+            echo "$response" | yq . # Pretty print JSON error
+            exit 1
+          fi
+
+          # Extract content, handling potential JSON escapes
+          llm_output=$(echo "$response" | yq -r '.choices[0].message.content')
+
+          # Save raw output for debugging
+          echo "$llm_output" > cv.llm.raw.yml
+
+          # Attempt to clean potential markdown code fences if LLM added them
+          cleaned_output=$(echo "$llm_output" | sed -e 's/^```yaml//' -e 's/^```//' -e 's/```$//')
+
+          # Save cleaned output to file, ensuring newline at end
+          echo "$cleaned_output" > cv.llm.yml
+          echo "" >> cv.llm.yml # Ensure final newline
+
+        shell: bash
+
+      - name: Validate LLM Output YAML
+        run: |
+          echo "Validating LLM output YAML..."
+          if yq eval 'true' cv.llm.yml > /dev/null; then
+            echo "YAML validation successful."
+          else
+            echo "LLM output is not valid YAML. Failing workflow."
+            echo "--- LLM Raw Output ---"
+            cat cv.llm.raw.yml
+            echo "--- End LLM Raw Output ---"
+            exit 1
+          fi
+        shell: bash
+
+      - name: Overwrite cv.yml with validated LLM output
+        run: mv cv.llm.yml cv.yml
+        shell: bash
+
+      - name: Build Typst Resume with Tailored Data
+        uses: lvignoli/typst-action@main
+        with:
+          source_file: shivom.typ
+          output_file: shivom-tailored.pdf # Explicit output name
+
+      - name: Prepare Release Info
+        id: release_info
+        run: |
+          echo "DATE=$(date +%Y-%m-%d)" >> $GITHUB_ENV
+          echo "TAG_NAME=resume-run-${{ github.run_id }}" >> $GITHUB_OUTPUT
+          echo "RELEASE_NAME=${{ github.event.inputs.release_title_prefix }} - ${{ env.DATE }}" >> $GITHUB_OUTPUT
+        shell: bash
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: shivom-tailored.pdf
+          name: ${{ steps.release_info.outputs.RELEASE_NAME }}
+          tag_name: ${{ steps.release_info.outputs.TAG_NAME }}
+          body: |
+            Resume tailored for job description using model: ${{ github.event.inputs.llm_model_name }}
+            Triggered by: @${{ github.actor }}
+            Run ID: ${{ github.run_id }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Default token is usually sufficient
