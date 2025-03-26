@@ -28,75 +28,40 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install yq and jq
+      - name: Install yq
         run: |
           sudo wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/bin/yq && sudo chmod +x /usr/bin/yq
-          sudo wget https://github.com/stedolan/jq/releases/latest/download/jq-linux-amd64 -O /usr/bin/jq && sudo chmod +x /usr/bin/jq
         shell: bash
 
-      - name: Read base cv.yml
-        id: base_cv
-        run: echo "content=$(cat cv.yml | sed 's/$/\\n/' | tr -d '\n')" >> $GITHUB_OUTPUT
-        # Reads the file, replaces line endings with \n literal, then removes actual newlines for single-line env var
+      - name: Setup Lua
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y lua5.3 luarocks
+          sudo luarocks install dkjson
+        shell: bash
 
-      - name: Construct LLM Prompt
+      # Removed the separate 'Read base cv.yml' step as Lua script reads it directly
+
+      - name: Construct LLM Prompt using Lua
         id: prompt
         run: |
-          # Prepare multi-line strings for JSON embedding
-          read -r -d '' prompt_instructions << EOM
-          You are a resume tailoring assistant. Your goal is to help keep the resume concise, ideally fitting on one page.
-          Analyze the provided resume YAML content and the job description below.
-          Modify the 'highlights' in the 'work' and 'projects' sections to best match the requirements and keywords found in the job description.
-          *   Rewrite highlights to be concise and impactful. Start each highlight with a strong action verb.
-          *   Focus on quantifiable results or specific achievements where possible.
-          *   Keep each highlight point brief, ideally one line.
-          *   Prioritize highlights most relevant to the job description. Remove or shorten less relevant ones if necessary for brevity.
-          You may also subtly reorder skills within categories in the 'skills' section if it emphasizes relevance to the job description.
-          Ensure your output is ONLY the complete, valid YAML content conforming to the original structure. Include ALL original sections and data, even if unmodified.
-          Do not add any commentary, explanations, markdown formatting, or anything outside the pure YAML structure.
-          The entire output must start with '# yaml-language-server: ...' and end with the last line of the YAML data.
-          Base Resume YAML:
-          EOM
+          # Export necessary variables for the Lua script
+          export CV_FILE_PATH='cv.yml' # Path relative to repo root
+          export JOB_DESCRIPTION='${{ github.event.inputs.job_description }}'
+          export MODEL_NAME='${{ github.event.inputs.llm_model_name }}'
 
-          read -r -d '' job_desc_header << EOM
+          # Execute lua script and capture output
+          # Ensure the script path is correct relative to the repo root
+          json_payload=$(lua .github/scripts/construct_payload.lua)
 
-          Job Description:
-          EOM
-
-          # Store raw content in environment variables for jq
-          CV_CONTENT="${{ steps.base_cv.outputs.content }}"
-          JOB_DESCRIPTION="${{ github.event.inputs.job_description }}"
-          export CV_CONTENT
-          export JOB_DESCRIPTION
-          export PROMPT_INSTRUCTIONS="$prompt_instructions"
-          export JOB_DESC_HEADER="$job_desc_header"
-
-          # --- Debugging Output ---
-          echo "--- Debug: Raw CV Content (first 100 chars) ---"
-          echo "${CV_CONTENT:0:100}"
-          echo "--- Debug: Raw JD (first 100 chars) ---"
-          echo "${JOB_DESCRIPTION:0:100}"
-          echo "--- End Debug ---"
-          # --- End Debugging Output ---
-
-          # Construct JSON payload using jq
-          # Pipe the combined prompt content directly into jq's stdin
-          # Use --raw-input/-R to read stdin as a single raw string
-          # Use --slurp/-s to read the raw string into an array (of one element)
-          # Use --arg for the model name
-          # Avoid intermediate full_prompt_content variable
-          json_payload=$(printf "%s\n%s\n%s\n%s" "$PROMPT_INSTRUCTIONS" "$CV_CONTENT" "$JOB_DESC_HEADER" "$JOB_DESCRIPTION" | \
-            jq -R -s --arg model "${{ github.event.inputs.llm_model_name }}" \
-            '{messages: [{"role": "user", "content": .[0]}], model: $model}')
-
-          # Check if jq failed
+          # Check if Lua script failed
           if [ $? -ne 0 ]; then
-            echo "Error: jq command failed to construct JSON payload."
+            echo "Error: Lua script failed to construct JSON payload."
             exit 1
           fi
 
           # Output the JSON payload for the next step
-          # Use bash <<< redirect to avoid issues with echo interpretation
+          # Using heredoc for multi-line output safety
           echo "json_payload<<EOF" >> $GITHUB_OUTPUT
           echo "$json_payload" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
