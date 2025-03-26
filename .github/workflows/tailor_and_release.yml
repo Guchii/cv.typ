@@ -73,6 +73,16 @@ jobs:
           # Combine into a single string for the API call content
           full_prompt_content="$escaped_instructions\n$escaped_cv_content\n$escaped_jd_header\n$escaped_jd"
 
+          # --- Debugging Output ---
+          echo "--- Debug: Escaped CV Content ---"
+          echo "$escaped_cv_content"
+          echo "--- Debug: Escaped JD ---"
+          echo "$escaped_jd"
+          echo "--- Debug: Full Prompt Content ---"
+          echo "$full_prompt_content"
+          echo "--- End Debug ---"
+          # --- End Debugging Output ---
+
           # Construct JSON payload using the model name input
           echo "json_payload={\"messages\": [{\"role\": \"user\", \"content\": \"$full_prompt_content\"}], \"model\": \"${{ github.event.inputs.llm_model_name }}\"}" >> $GITHUB_OUTPUT
         shell: bash
