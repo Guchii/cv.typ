@@ -28,10 +28,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install yq (for YAML validation)
+      - name: Install yq and jq
         run: |
-          sudo wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/bin/yq
-          sudo chmod +x /usr/bin/yq
+          sudo wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/bin/yq && sudo chmod +x /usr/bin/yq
+          sudo wget https://github.com/stedolan/jq/releases/latest/download/jq-linux-amd64 -O /usr/bin/jq && sudo chmod +x /usr/bin/jq
         shell: bash
 
       - name: Read base cv.yml
@@ -63,28 +63,47 @@ jobs:
           Job Description:
           EOM
 
-          # Escape JSON special characters in the YAML content and JD
-          escaped_cv_content=$(echo "${{ steps.base_cv.outputs.content }}" | sed 's/\\/\\\\/g' | sed 's/"/\\"/g' | sed ':a;N;$!ba;s/\n/\\n/g')
-          escaped_jd=$(echo "${{ github.event.inputs.job_description }}" | sed 's/\\/\\\\/g' | sed 's/"/\\"/g' | sed ':a;N;$!ba;s/\n/\\n/g')
-          escaped_instructions=$(echo "$prompt_instructions" | sed 's/\\/\\\\/g' | sed 's/"/\\"/g' | sed ':a;N;$!ba;s/\n/\\n/g')
-          escaped_jd_header=$(echo "$job_desc_header" | sed 's/\\/\\\\/g' | sed 's/"/\\"/g' | sed ':a;N;$!ba;s/\n/\\n/g')
+          # Store raw content in environment variables for jq
+          CV_CONTENT="${{ steps.base_cv.outputs.content }}"
+          JOB_DESCRIPTION="${{ github.event.inputs.job_description }}"
+          export CV_CONTENT
+          export JOB_DESCRIPTION
+          export PROMPT_INSTRUCTIONS="$prompt_instructions"
+          export JOB_DESC_HEADER="$job_desc_header"
 
-
-          # Combine into a single string for the API call content
-          full_prompt_content="$escaped_instructions\n$escaped_cv_content\n$escaped_jd_header\n$escaped_jd"
+          # Combine into the final prompt content string (still needed for the 'content' field)
+          # Note: Using printf is safer for arbitrary content than echo
+          full_prompt_content=$(printf "%s\n%s\n%s\n%s" "$PROMPT_INSTRUCTIONS" "$CV_CONTENT" "$JOB_DESC_HEADER" "$JOB_DESCRIPTION")
+          export full_prompt_content # Make available to jq
 
           # --- Debugging Output ---
-          echo "--- Debug: Escaped CV Content ---"
-          echo "$escaped_cv_content"
-          echo "--- Debug: Escaped JD ---"
-          echo "$escaped_jd"
-          echo "--- Debug: Full Prompt Content ---"
-          echo "$full_prompt_content"
+          echo "--- Debug: Raw CV Content (first 100 chars) ---"
+          echo "${CV_CONTENT:0:100}"
+          echo "--- Debug: Raw JD (first 100 chars) ---"
+          echo "${JOB_DESCRIPTION:0:100}"
+          echo "--- Debug: Full Prompt Content (first 200 chars) ---"
+          echo "${full_prompt_content:0:200}"
           echo "--- End Debug ---"
           # --- End Debugging Output ---
 
-          # Construct JSON payload using the model name input
-          echo "json_payload={\"messages\": [{\"role\": \"user\", \"content\": \"$full_prompt_content\"}], \"model\": \"${{ github.event.inputs.llm_model_name }}\"}" >> $GITHUB_OUTPUT
+          # Construct JSON payload using jq
+          # Pass the full prompt content via environment variable
+          # Use --arg for the model name to handle it safely
+          json_payload=$(jq -n --arg model "${{ github.event.inputs.llm_model_name }}" --arg content "$full_prompt_content" \
+            '{messages: [{"role": "user", "content": $content}], model: $model}')
+
+          # Check if jq failed
+          if [ $? -ne 0 ]; then
+            echo "Error: jq command failed to construct JSON payload."
+            exit 1
+          fi
+
+          # Output the JSON payload for the next step
+          # Use bash <<< redirect to avoid issues with echo interpretation
+          echo "json_payload<<EOF" >> $GITHUB_OUTPUT
+          echo "$json_payload" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
         shell: bash
 
       - name: Call OpenRouter LLM API
@@ -99,7 +118,7 @@ jobs:
             -H "Content-Type: application/json" \
             -H "HTTP-Referer: $repo_url" \
             -H "X-Title: $project_title" \
-            -d '${{ steps.prompt.outputs.json_payload }}')
+            -d "${{ steps.prompt.outputs.json_payload }}") # Use the payload directly
 
           # Check for errors in response (simple check, might need refinement)
           # OpenRouter errors might be structured differently, check for 'error' object
