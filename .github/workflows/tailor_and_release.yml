@@ -71,26 +71,23 @@ jobs:
           export PROMPT_INSTRUCTIONS="$prompt_instructions"
           export JOB_DESC_HEADER="$job_desc_header"
 
-          # Combine into the final prompt content string (still needed for the 'content' field)
-          # Note: Using printf is safer for arbitrary content than echo
-          full_prompt_content=$(printf "%s\n%s\n%s\n%s" "$PROMPT_INSTRUCTIONS" "$CV_CONTENT" "$JOB_DESC_HEADER" "$JOB_DESCRIPTION")
-          export full_prompt_content # Make available to jq
-
           # --- Debugging Output ---
           echo "--- Debug: Raw CV Content (first 100 chars) ---"
           echo "${CV_CONTENT:0:100}"
           echo "--- Debug: Raw JD (first 100 chars) ---"
           echo "${JOB_DESCRIPTION:0:100}"
-          echo "--- Debug: Full Prompt Content (first 200 chars) ---"
-          echo "${full_prompt_content:0:200}"
           echo "--- End Debug ---"
           # --- End Debugging Output ---
 
           # Construct JSON payload using jq
-          # Pass the full prompt content via environment variable
-          # Use --arg for the model name to handle it safely
-          json_payload=$(jq -n --arg model "${{ github.event.inputs.llm_model_name }}" --arg content "$full_prompt_content" \
-            '{messages: [{"role": "user", "content": $content}], model: $model}')
+          # Pipe the combined prompt content directly into jq's stdin
+          # Use --raw-input/-R to read stdin as a single raw string
+          # Use --slurp/-s to read the raw string into an array (of one element)
+          # Use --arg for the model name
+          # Avoid intermediate full_prompt_content variable
+          json_payload=$(printf "%s\n%s\n%s\n%s" "$PROMPT_INSTRUCTIONS" "$CV_CONTENT" "$JOB_DESC_HEADER" "$JOB_DESCRIPTION" | \
+            jq -R -s --arg model "${{ github.event.inputs.llm_model_name }}" \
+            '{messages: [{"role": "user", "content": .[0]}], model: $model}')
 
           # Check if jq failed
           if [ $? -ne 0 ]; then
