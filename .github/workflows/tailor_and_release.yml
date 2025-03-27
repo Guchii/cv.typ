@@ -60,11 +60,9 @@ jobs:
             exit 1
           fi
 
-          # Output the JSON payload for the next step
-          # Using heredoc for multi-line output safety
-          echo "json_payload<<EOF" >> $GITHUB_OUTPUT
-          echo "$json_payload" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
+          # Save the JSON payload to a temporary file
+          echo "$json_payload" > payload.json
+          echo "JSON payload saved to payload.json"
 
         shell: bash
 
@@ -75,12 +73,19 @@ jobs:
           repo_url="https://github.com/${{ github.repository }}"
           project_title="CV Tailoring Workflow"
 
+          # Check if payload file exists
+          if [ ! -f payload.json ]; then
+            echo "Error: payload.json not found!"
+            exit 1
+          fi
+          echo "Sending payload from payload.json"
+
           response=$(curl -s -X POST "https://openrouter.ai/api/v1/chat/completions" \
             -H "Authorization: Bearer ${{ secrets.OPENROUTER_API_KEY }}" \
             -H "Content-Type: application/json" \
             -H "HTTP-Referer: $repo_url" \
             -H "X-Title: $project_title" \
-            -d @- <<< "${{ steps.prompt.outputs.json_payload }}") # Pipe payload to curl via stdin
+            -d @payload.json) # Read data from payload.json file
 
           # Check for errors in response (simple check, might need refinement)
           # OpenRouter errors might be structured differently, check for 'error' object
@@ -103,6 +108,11 @@ jobs:
           echo "$cleaned_output" > cv.llm.yml
           echo "" >> cv.llm.yml # Ensure final newline
 
+        shell: bash
+
+      - name: Clean up payload file # Added cleanup step
+        if: always() # Ensure cleanup runs even if previous steps fail
+        run: rm -f payload.json
         shell: bash
 
       - name: Validate LLM Output YAML
