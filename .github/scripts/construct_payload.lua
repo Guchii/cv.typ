@@ -5,7 +5,10 @@ local io = require("io")
 -- Get inputs from environment variables
 local cv_file_path = assert(os.getenv("CV_FILE_PATH"), "Missing env var: CV_FILE_PATH")
 local job_description = assert(os.getenv("JOB_DESCRIPTION"), "Missing env var: JOB_DESCRIPTION")
-local model_name = assert(os.getenv("MODEL_NAME"), "Missing env var: MODEL_NAME")
+-- Hardcode model name for now due to act input issues
+local model_name = "google/gemini-flash-1.5" -- Or use 'google/gemma-2-9b-it'
+
+-- Removed debug print
 
 -- Read CV file content
 local cv_file = assert(io.open(cv_file_path, "r"), "Cannot open CV file: " .. cv_file_path)

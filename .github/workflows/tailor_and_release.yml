@@ -45,14 +45,15 @@ jobs:
       - name: Construct LLM Prompt using Lua
         id: prompt
         run: |
+          # Export necessary variables for the Lua script
+          export CV_FILE_PATH='cv.yml' # Path relative to repo root
+          export JOB_DESCRIPTION='${{ github.event.inputs.job_description }}'
+
+          # Model name is now hardcoded in the Lua script for local 'act' testing.
+          # Note: The actual GitHub Actions run will use the 'llm_model_name' input.
+
           # Execute lua script and capture output
-          # Pass environment variables directly on the command line
-          json_payload=$( \
-            CV_FILE_PATH='cv.yml' \
-            JOB_DESCRIPTION='${{ github.event.inputs.job_description }}' \
-            MODEL_NAME='${{ github.event.inputs.llm_model_name }}' \
-            lua .github/scripts/construct_payload.lua \
-          )
+          json_payload=$(lua .github/scripts/construct_payload.lua)
 
           # Check if Lua script failed
           if [ $? -ne 0 ]; then
@@ -112,7 +113,7 @@ jobs:
 
       - name: Clean up payload file # Added cleanup step
         if: always() # Ensure cleanup runs even if previous steps fail
-        run: rm -f payload.json
+        run: rm -f payload.json # Clean up only payload.json
         shell: bash
 
       - name: Validate LLM Output YAML
@@ -137,7 +138,7 @@ jobs:
         uses: lvignoli/typst-action@main
         with:
           source_file: shivom.typ
-          output_file: shivom-tailored.pdf # Explicit output name
+          # Removed output_file parameter, assuming default output is shivom.pdf
 
       - name: Prepare Release Info
         id: release_info
@@ -147,10 +148,12 @@ jobs:
           echo "RELEASE_NAME=${{ github.event.inputs.release_title_prefix }} - ${{ env.DATE }}" >> $GITHUB_OUTPUT
         shell: bash
 
+      # Removed 'List files before release' debug step
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
-          files: shivom-tailored.pdf
+          files: shivom.pdf # Use the default PDF name
           name: ${{ steps.release_info.outputs.RELEASE_NAME }}
           tag_name: ${{ steps.release_info.outputs.TAG_NAME }}
           body: |
