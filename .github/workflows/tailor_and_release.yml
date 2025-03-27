@@ -80,7 +80,7 @@ jobs:
             -H "Content-Type: application/json" \
             -H "HTTP-Referer: $repo_url" \
             -H "X-Title: $project_title" \
-            -d "${{ steps.prompt.outputs.json_payload }}") # Use the payload directly
+            -d @- <<< "${{ steps.prompt.outputs.json_payload }}") # Pipe payload to curl via stdin
 
           # Check for errors in response (simple check, might need refinement)
           # OpenRouter errors might be structured differently, check for 'error' object
