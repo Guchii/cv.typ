@@ -45,14 +45,14 @@ jobs:
       - name: Construct LLM Prompt using Lua
         id: prompt
         run: |
-          # Export necessary variables for the Lua script
-          export CV_FILE_PATH='cv.yml' # Path relative to repo root
-          export JOB_DESCRIPTION='${{ github.event.inputs.job_description }}'
-          export MODEL_NAME='${{ github.event.inputs.llm_model_name }}'
-
           # Execute lua script and capture output
-          # Ensure the script path is correct relative to the repo root
-          json_payload=$(lua .github/scripts/construct_payload.lua)
+          # Pass environment variables directly on the command line
+          json_payload=$( \
+            CV_FILE_PATH='cv.yml' \
+            JOB_DESCRIPTION='${{ github.event.inputs.job_description }}' \
+            MODEL_NAME='${{ github.event.inputs.llm_model_name }}' \
+            lua .github/scripts/construct_payload.lua \
+          )
 
           # Check if Lua script failed
           if [ $? -ne 0 ]; then
